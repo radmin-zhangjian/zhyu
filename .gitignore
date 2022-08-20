@@ -19,4 +19,4 @@
 .idea
 /test/
 /resources/
-/runtime/logs/*
+#/runtime/logs/*
