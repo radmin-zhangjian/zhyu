@@ -44,6 +44,7 @@ func (engine *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c.reset()
 
 	engine.handleHTTPRequest(c)
+	engine.pool.Put(c)
 }
 
 // HandleContext重新进入已重写的上下文。
