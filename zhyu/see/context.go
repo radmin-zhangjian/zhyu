@@ -29,6 +29,7 @@ func (c *Context) reset() {
 	c.handlers = nil
 	c.index = -1
 
+	c.StatusCode = 0
 	c.Keys = nil
 }
 
