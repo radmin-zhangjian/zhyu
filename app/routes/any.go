@@ -38,13 +38,13 @@ func InitRoutes(version string, controller string, c *gin.Context) interface{} {
 
 	// 向上版本查找
 	var vi int
-	for k, v := range appData {
-		log.Printf("k = %v, v = %v", k, v)
+	for _, v := range appData {
+		//log.Printf("k = %v, v = %v", k, v)
 		ver1, _ := strconv.ParseInt(version[1:], 10, 64)
 		ver2, _ := strconv.ParseInt(v.Version[1:], 10, 64)
 		vi++
 		if vi == 1 {
-			log.Printf("kk = %v, vv = %v", ver1, ver2)
+			//log.Printf("kk = %v, vv = %v", ver1, ver2)
 			if ver1 > ver2 {
 				return nil
 			}
@@ -107,10 +107,24 @@ func NewAny(router *gin.Engine) {
 				// 自定义 logs
 				logs := c.MustGet("logs").(logger.Logger)
 
+				// app new 连接池模式
+				appc := appPool.Get().(*app.Context)
+				log.Printf("app pool: %v", &appc)
+				appc.Reset()
+				appc.Context = c
+				appc.UserInfo = userInfo
+				appc.Ctx = ctx
+				appc.Logs = &logs
+				defer appPool.Put(appc)
+				//log.Printf("app pool222 ======: %v", &appc)
+
 				rValue := reflect.ValueOf(srv)
 				rType := reflect.TypeOf(srv)
 				reciver := rValue.Elem().FieldByName("Context")
-				reciver.Set(reflect.ValueOf(&app.Context{Context: c, UserInfo: userInfo, Ctx: ctx, Logs: &logs}))
+				// 原始模式
+				//reciver.Set(reflect.ValueOf(&app.Context{Context: c, UserInfo: userInfo, Ctx: ctx, Logs: &logs}))
+				// app new 连接池模式
+				reciver.Set(reflect.ValueOf(appc))
 
 				method, exist := rType.MethodByName(controllerName)
 				if exist {

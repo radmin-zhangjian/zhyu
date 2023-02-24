@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"reflect"
+	"sync"
 	app "zhyu/app"
 	"zhyu/app/api/auth"
 	v1 "zhyu/app/api/v1"
@@ -12,6 +13,12 @@ import (
 	"zhyu/middleware"
 	"zhyu/utils/logger"
 )
+
+var appPool = sync.Pool{
+	New: func() any {
+		return app.NewApp()
+	},
+}
 
 type HandlerFunc func(ctx *app.Context)
 
@@ -58,11 +65,25 @@ func handlerRef(api string, object any) gin.HandlerFunc {
 		// 自定义 logs
 		logs := c.MustGet("logs").(logger.Logger)
 
+		// app new 连接池模式
+		appc := appPool.Get().(*app.Context)
+		//log.Printf("app pool: %v", appc)
+		appc.Reset()
+		appc.Context = c
+		appc.UserInfo = userInfo
+		appc.Ctx = ctx
+		appc.Logs = &logs
+		defer appPool.Put(appc)
+		//log.Printf("app pool222 ======: %v", &appc)
+
 		srv := object
 		rValue := reflect.ValueOf(srv)
 		rType := reflect.TypeOf(srv)
 		reciver := rValue.Elem().FieldByName("Context")
-		reciver.Set(reflect.ValueOf(&app.Context{Context: c, UserInfo: userInfo, Ctx: ctx, Logs: &logs}))
+		// 原始模式
+		//reciver.Set(reflect.ValueOf(&app.Context{Context: c, UserInfo: userInfo, Ctx: ctx, Logs: &logs}))
+		// app new 连接池模式
+		reciver.Set(reflect.ValueOf(appc))
 		method, exist := rType.MethodByName(api)
 		if exist {
 			args := []reflect.Value{rValue}

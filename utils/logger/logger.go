@@ -54,7 +54,9 @@ func WriteWithIo(content string) {
 		os.Exit(2)
 	}
 	if _, err := io.WriteString(fileObj, content); err == nil {
-		fmt.Println("Successful appending to the file with os.OpenFile and io.WriteString.\n", content)
+		if "debug" == setting.Server.RunMode {
+			fmt.Println("Successful appending to the file with os.OpenFile and io.WriteString.\n", content)
+		}
 	}
 }
 

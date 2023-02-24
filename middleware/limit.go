@@ -7,7 +7,7 @@ import (
 
 func LimitHandler() gin.HandlerFunc {
 	// 每秒链接次数
-	lmt := tollbooth.NewLimiter(2, nil)
+	lmt := tollbooth.NewLimiter(10, nil)
 	lmt.SetMessage("服务繁忙，请稍后再试...")
 	return func(c *gin.Context) {
 		httpError := tollbooth.LimitByRequest(lmt, c.Writer, c.Request)

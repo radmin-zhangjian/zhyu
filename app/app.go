@@ -16,3 +16,10 @@ type Context struct {
 func NewApp() *Context {
 	return new(Context)
 }
+
+func (app *Context) Reset() {
+	app.Context = nil
+	app.Ctx = nil
+	app.Logs = nil
+	app.UserInfo = nil
+}
