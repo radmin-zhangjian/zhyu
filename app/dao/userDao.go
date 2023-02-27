@@ -188,3 +188,22 @@ func Transaction1() error {
 	// 提交事务
 	return tx.Commit().Error
 }
+
+// QueryRawDao 原生查询
+func QueryRawDao(sql string, values ...interface{}) (user *[]model.User) {
+	db := utils.GetDB()
+	db.Raw(sql, values...).Scan(&user)
+	return
+}
+
+// QueryExecDao 一般用于更新不返回数据
+// UPDATE users SET money = ? WHERE name = ?
+func QueryExecDao(sql string, values ...interface{}) (user *[]model.User) {
+	db := utils.GetDB()
+	db.Exec(sql, values...)
+
+	// Exec with SQL Expression
+	//db.Exec("UPDATE users SET money = ? WHERE name = ?", gorm.Expr("money * ? + ?", 10000, 1), "jinzhu")
+
+	return
+}

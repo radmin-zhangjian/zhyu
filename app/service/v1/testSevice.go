@@ -4,7 +4,7 @@ import (
 	"zhyu/app"
 )
 
-func Say(c *app.Context) any {
+func SayService(c *app.Context) any {
 	a := c.Query("a")
 	return a
 }

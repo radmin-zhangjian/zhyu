@@ -10,6 +10,6 @@ func (c *App) Login() {
 	// valid
 
 	// login auth
-	data := auth.LoginAuth(c.Ctx, c.Context)
+	data := auth.LoginAuthService(c.Ctx, c.Context)
 	c.JSON(http.StatusOK, data)
 }

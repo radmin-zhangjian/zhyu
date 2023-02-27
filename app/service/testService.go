@@ -21,7 +21,7 @@ type userInfo struct {
 	Photo string
 }
 
-func SayRedis(c *app.Context) any {
+func SayRedisService(c *app.Context) any {
 	a := c.Query("a")
 	key := "say:" + a
 
@@ -40,7 +40,7 @@ func SayRedis(c *app.Context) any {
 	return res
 }
 
-func SayDb(c *app.Context) any {
+func SayDbService(c *app.Context) any {
 
 	Id, _ := strconv.ParseInt(c.Query("id"), 10, 64)
 
@@ -64,6 +64,11 @@ func SayDb(c *app.Context) any {
 	//	{Username: "go_uuid", Password: "333666", Phone: "13133330001", Address: "小岛"},
 	//}
 	//dao.UserCreateBatch(&user)
+
+	// ====== 原生查询 ====== todo
+	sql := "SELECT * FROM zhyu_user WHERE phone = ? AND user_name = ? limit 10"
+	info := dao.QueryRawDao(sql, "13133330001", "go_uuid")
+	log.Printf("QueryExecDao: ========== %#v", info)
 
 	// 获取第一个，默认查询第一个
 	user, _ := dao.UserGetById(Id)

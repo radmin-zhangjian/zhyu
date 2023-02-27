@@ -28,6 +28,6 @@ func (c *App) SayDo() {
 func (c *App) SayIn() {
 	log.Printf("UserInfo: %v", c.UserInfo)
 	// GORM 测试
-	resultDB := service.SayDb(c.Context)
+	resultDB := service.SayDbService(c.Context)
 	c.JSON(http.StatusOK, resultDB)
 }

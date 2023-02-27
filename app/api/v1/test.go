@@ -95,13 +95,13 @@ func (c *App) SayIn() {
 // http://localhost:9090/api/v1/sayOut
 func (c *App) SayDo() {
 	// redis 测试
-	result := service.SayRedis(c.Context)
+	result := service.SayRedisService(c.Context)
 
 	// 区分版本的测试
-	resultV1 := v1.Say(c.Context)
+	resultV1 := v1.SayService(c.Context)
 
 	// GORM 测试
-	resultDB := service.SayDb(c.Context)
+	resultDB := service.SayDbService(c.Context)
 
 	c.String(http.StatusOK, "c.v1 result: %s, resultV1: %s, UserInfo: %s", result, resultV1, c.UserInfo)
 	c.JSON(http.StatusOK, resultDB)

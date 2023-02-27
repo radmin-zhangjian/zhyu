@@ -17,8 +17,8 @@ type userAuth struct {
 	Password string `from:"password" validate:"required,min=6,max=25"`
 }
 
-// LoginAuth 用户登陆
-func LoginAuth(ctx context.Context, c *app.Context) any {
+// LoginAuthService 用户登陆
+func LoginAuthService(ctx context.Context, c *app.Context) any {
 
 	// 创建返回信息
 	data := make(map[string]interface{})
