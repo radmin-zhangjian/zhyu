@@ -1,6 +1,7 @@
 package setting
 
 import (
+	"flag"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -10,8 +11,18 @@ import (
 	"runtime"
 )
 
+var (
+	// 测试环境默认 configFile/app.yaml 为配置文件
+	// 更改配置文件 go main.go -config.file=xxx.yaml
+	configFile = flag.String("config.file", "configFile/app.yaml", "server address")
+)
+
 func init() {
-	InitConf("configFile/app.yaml")
+	// 解析参数
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	InitConf(*configFile)
 }
 
 func InitConf(dataFile string) {
