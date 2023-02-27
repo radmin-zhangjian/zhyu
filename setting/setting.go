@@ -35,11 +35,12 @@ func InitConf(dataFile string) {
 	Server = &c.Srv
 	Database = &c.DB
 	Redis = &c.RedisConfig
+	Elastic = &c.ES
 	WhiteList = &c.WhiteList
 }
 
 func (c conf) String() string {
-	return fmt.Sprintf("%v\n%v\n%v", c.Srv, c.DB, c.RedisConfig)
+	return fmt.Sprintf("%v\n%v\n%v\n%v", c.Srv, c.DB, c.RedisConfig, c.ES)
 }
 
 func (s server) String() string {
@@ -74,8 +75,15 @@ func (r redis) String() string {
 	return fmt.Sprintf("redis : \n"+
 		"\thost : %v \n"+
 		"\tport : %v \n"+
-		"\tPassword : %v \n"+
-		"\tdb : %v"+
+		"\tpassword : %v \n"+
+		"\tdb : %v \n"+
 		"\tpoolSize : %v",
 		r.Host, r.Port, r.Password, r.DB, r.PoolSize)
+}
+func (r elastic) String() string {
+	return fmt.Sprintf("elastic : \n"+
+		"\thost : %v \n"+
+		"\tuser : %v \n"+
+		"\tpassword : %v",
+		r.Host, r.User, r.Password)
 }

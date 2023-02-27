@@ -3,12 +3,14 @@ package toml
 var Server *server
 var Database *database
 var Redis *redis
+var Elastic *elastic
 var IpWhite *ipWhite
 
 type conf struct {
 	Srv         server   `toml:"server"`
 	DB          database `toml:"database"`
 	RedisConfig redis    `toml:"redis"`
+	ES          elastic  `yaml:"elastic"`
 	IpWhite     ipWhite  `toml:"ipWhite"`
 }
 
@@ -48,6 +50,12 @@ type redis struct {
 	Password string `toml:"password"`
 	DB       int64  `toml:"db"`
 	PoolSize int64  `toml:"poolSize"`
+}
+
+type elastic struct {
+	Host     string `yaml:"host"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
 }
 
 type ipWhite struct {

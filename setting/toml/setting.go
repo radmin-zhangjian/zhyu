@@ -58,5 +58,6 @@ func InitConf(dataFile string) {
 	Server = &t.Srv
 	Database = &t.DB
 	Redis = &t.RedisConfig
+	Elastic = &t.ES
 	IpWhite = &t.IpWhite
 }

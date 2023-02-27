@@ -115,7 +115,7 @@ func Fatal(format string, v ...any) {
 
 func (log *Logger) join(logLevel string, message interface{}) string {
 	startTimeStr := time.Now().Format("2006-01-02 15:04:05")
-	logMsg := fmt.Sprintf("[%s][%s][%s][traceId:%v][host:%s][ip:%s][code:%d][%s %s %s %s][respose]%s[error]%s\n",
+	logMsg := fmt.Sprintf("[%s][%s][%s][traceId:%v][host:%s][ip:%s][code:%d][%s %s %s %s][respose]%s[msg]%s\n",
 		setting.Server.ServerName,
 		startTimeStr,
 		logLevel,

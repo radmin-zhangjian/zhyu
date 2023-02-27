@@ -102,6 +102,7 @@ func Routes(router *gin.Engine) {
 	router.GET("/middleware", handlerRef("Middleware", auth.New()))
 
 	// 测试
+	router.GET("/v1/estest", handlerRef("EsTest", v1.New()))
 	router.GET("/v1/test", handlerRef("Test", v1.New()))
 	router.GET("/v2/test", handlerRef("Test", v2.New()))
 

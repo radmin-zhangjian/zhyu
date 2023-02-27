@@ -38,6 +38,22 @@ func (c *App) Test() {
 	c.String(http.StatusOK, "Hello, v1 test")
 }
 
+// EsTest elastic测试
+func (c *App) EsTest() {
+	// 插入
+	//result := v1.EsCreateService(c.Context)
+	// 修改
+	//result := v1.EsUpdateService(c.Context)
+	// 查询单个
+	//result := v1.EsGetService(c.Context)
+	// 查询多个
+	//result := v1.EsSearchService(c.Context)
+	// query查询
+	result := v1.EsQueryService(c.Context)
+
+	c.JSON(http.StatusOK, result)
+}
+
 // SayIn 动态载入的api接口
 // http://localhost:9090/api/v1/sayIn
 func (c *App) SayIn() {

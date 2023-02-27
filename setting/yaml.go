@@ -3,12 +3,14 @@ package setting
 var Server *server
 var Database *database
 var Redis *redis
+var Elastic *elastic
 var WhiteList *whiteList
 
 type conf struct {
 	Srv         server    `yaml:"server"`
 	DB          database  `yaml:"database"`
 	RedisConfig redis     `yaml:"redis"`
+	ES          elastic   `yaml:"elastic"`
 	WhiteList   whiteList `yaml:"whiteList"`
 }
 
@@ -43,6 +45,12 @@ type redis struct {
 	Password string `yaml:"password"`
 	DB       int64  `yaml:"db"`
 	PoolSize int64  `yaml:"poolSize"`
+}
+
+type elastic struct {
+	Host     string `yaml:"host"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
 }
 
 type whiteList struct {

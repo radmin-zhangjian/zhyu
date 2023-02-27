@@ -94,7 +94,7 @@ func Logger() gin.HandlerFunc {
 				logLevel = "INFO"
 			}
 
-			logMsg := fmt.Sprintf("[%s][%s][%s][traceId:%v][host:%s][ip:%s][code:%d][cost:%s][%s %s %s %s][User-Agent:\"%s\"][request]%s[respose]%s[error]%s\n",
+			logMsg := fmt.Sprintf("[%s][%s][%s][traceId:%v][host:%s][ip:%s][code:%d][cost:%s][%s %s %s %s][User-Agent:\"%s\"][request]%s[respose]%s[msg]%s\n",
 				setting.Server.ServerName,
 				startTimeStr,
 				logLevel,

@@ -37,5 +37,10 @@
   db = 0
   poolSize = 100
 
+[elastic]
+  host = "http://127.0.0.1:9200/"
+  user = "elastic"
+  password = "password"
+
 [ipWhite]
   ip = ["::1", "127.0.0.1"]
