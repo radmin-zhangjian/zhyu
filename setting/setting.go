@@ -14,7 +14,7 @@ import (
 var (
 	// 测试环境默认 configFile/app.yaml 为配置文件
 	// 更改配置文件 go main.go -config.file=xxx.yaml
-	configFile = flag.String("config.file", "configFile/app.yaml", "server address")
+	configFile = flag.String("config.file", "configFile/app.yaml", "config file")
 )
 
 func init() {
