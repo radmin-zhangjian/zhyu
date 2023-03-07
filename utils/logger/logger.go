@@ -18,7 +18,7 @@ type Logger struct {
 	*gin.Context
 }
 
-var logChannel = make(chan map[string]interface{}, 300)
+var logChannel = make(chan map[string]interface{}, 1000)
 
 // CreateDateDir 根据时间检测目录，不存在则创建
 func CreateDateDir(Path string) string {
@@ -51,13 +51,14 @@ func WriteWithIo(content string) {
 	fileObj, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
 	if err != nil {
 		fmt.Println("Failed to open the file", err.Error())
-		os.Exit(2)
+		//os.Exit(2)
 	}
 	if _, err := io.WriteString(fileObj, content); err == nil {
 		if "debug" == setting.Server.RunMode {
 			fmt.Println("Successful appending to the file with os.OpenFile and io.WriteString.\n", content)
 		}
 	}
+	fileObj.Close()
 }
 
 // LogHandlerFunc 异步处理日志
