@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/url"
+	"strconv"
+	"strings"
 	"time"
 	"zhyu/setting"
 	"zhyu/utils"
@@ -94,25 +96,62 @@ func Logger() gin.HandlerFunc {
 				logLevel = "INFO"
 			}
 
-			logMsg := fmt.Sprintf("[%s][%s][%s][traceId:%v][host:%s][ip:%s][code:%d][cost:%s][%s %s %s %s][User-Agent:\"%s\"][request]%s[respose]%s[msg]%s\n",
-				setting.Server.ServerName,
-				startTimeStr,
-				logLevel,
-				c.Keys["requestId"],
-				c.Request.Host,
-				c.ClientIP(),
-				resposeStatus,
-				latencyCost,
-				c.Request.Method,
-				//c.Request.URL.Path,
-				requestURI,
-				c.Request.Proto,
-				c.Request.Header.Get("Content-Type"),
-				c.Request.UserAgent(),
-				requestBodyStr,
-				responseBody,
-				c.Errors.ByType(gin.ErrorTypePrivate).String(),
-			)
+			// Sprintf 方式拼接字符串
+			//logMsg := fmt.Sprintf("[%s][%s][%s][traceId:%v][host:%s][ip:%s][code:%d][cost:%s][%s %s %s %s][User-Agent:\"%s\"][request]%s[respose]%s[msg]%s\n",
+			//	setting.Server.ServerName,
+			//	startTimeStr,
+			//	logLevel,
+			//	c.Keys["requestId"],
+			//	c.Request.Host,
+			//	c.ClientIP(),
+			//	resposeStatus,
+			//	latencyCost,
+			//	c.Request.Method,
+			//	//c.Request.URL.Path,
+			//	requestURI,
+			//	c.Request.Proto,
+			//	c.Request.Header.Get("Content-Type"),
+			//	c.Request.UserAgent(),
+			//	requestBodyStr,
+			//	responseBody,
+			//	c.Errors.ByType(gin.ErrorTypePrivate).String(),
+			//)
+
+			// Builder 方式拼接字符串
+			var build strings.Builder
+			build.WriteString("[")
+			build.WriteString(setting.Server.ServerName)
+			build.WriteString("][")
+			build.WriteString(startTimeStr)
+			build.WriteString("][")
+			build.WriteString(logLevel)
+			build.WriteString("][traceId:")
+			build.WriteString(strconv.FormatInt(c.Keys["requestId"].(int64), 10))
+			build.WriteString("][host:")
+			build.WriteString(c.Request.Host)
+			build.WriteString("][ip:")
+			build.WriteString(c.ClientIP())
+			build.WriteString("][code:")
+			build.WriteString(strconv.Itoa(resposeStatus))
+			build.WriteString("][cost:")
+			build.WriteString(latencyCost)
+			build.WriteString("][")
+			build.WriteString(c.Request.Method)
+			build.WriteString(" ")
+			build.WriteString(requestURI)
+			build.WriteString(" ")
+			build.WriteString(c.Request.Proto)
+			build.WriteString(" ")
+			build.WriteString(c.Request.Header.Get("Content-Type"))
+			build.WriteString("][User-Agent:\"")
+			build.WriteString(c.Request.UserAgent())
+			build.WriteString("\"][request]")
+			build.WriteString(requestBodyStr)
+			build.WriteString("[respose]")
+			build.WriteString(responseBody)
+			build.WriteString("[msg]")
+			build.WriteString(c.Errors.ByType(gin.ErrorTypePrivate).String())
+			logMsg := build.String()
 
 			logs := c.MustGet("logs").(logger.Logger)
 			logs.Print(logMsg)
