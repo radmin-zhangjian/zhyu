@@ -62,8 +62,10 @@ func (s *Http) GinNew() *gin.Engine {
 	// 导入所有模板
 	//router.LoadHTMLGlob("website/tpl/*")
 
-	// rate-limit 中间件
-	router.Use(middleware.LimitHandler())
+	// 限流 tollbooth-limit 中间件
+	//router.Use(middleware.LimitHandler())
+	// 限流 rate-limit 中间件
+	router.Use(middleware.NewRateLimiter())
 
 	// 注册静态路由
 	routes.Routes(router)
