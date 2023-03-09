@@ -4,6 +4,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"go.etcd.io/etcd/api/v3/mvccpb"
+	"go.etcd.io/etcd/client/v3"
+	"go.etcd.io/etcd/storage/storagepb"
+	//"github.com/coreos/etcd/clientv3"
+	//"github.com/coreos/etcd/storage/storagepb"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -11,6 +16,7 @@ import (
 	"path"
 	"runtime"
 	"zhyu/utils"
+	"zhyu/utils/logger"
 )
 
 var (
@@ -58,40 +64,48 @@ func InitConf(dataFile string) {
 
 	// 配置写入配置中心
 	serverJson, _ := json.Marshal(Server)
-	utils.EtcdObject.Put("/setting/config/server", string(serverJson))
+	utils.GetEtcd().Put("/setting/config/server", string(serverJson))
 	databaseJson, _ := json.Marshal(Database)
-	utils.EtcdObject.Put("/setting/config/db", string(databaseJson))
+	utils.GetEtcd().Put("/setting/config/db", string(databaseJson))
 	redisJson, _ := json.Marshal(Redis)
-	utils.EtcdObject.Put("/setting/config/redis", string(redisJson))
+	utils.GetEtcd().Put("/setting/config/redis", string(redisJson))
 	elasticJson, _ := json.Marshal(Elastic)
-	utils.EtcdObject.Put("/setting/config/elastic", string(elasticJson))
+	utils.GetEtcd().Put("/setting/config/elastic", string(elasticJson))
 	whiteIpListJson, _ := json.Marshal(WhiteList)
-	utils.EtcdObject.Put("/setting/config/whiteIpList", string(whiteIpListJson))
+	utils.GetEtcd().Put("/setting/config/whiteIpList", string(whiteIpListJson))
 }
 
 // 读取配置
 func getConf() {
-	respServer := utils.EtcdObject.Get("/setting/config/server")
+	// 监控所有配置文件
+	s := &settingWatch{etcd: utils.GetEtcd(), key: "/setting/config/"}
+	go s.listenWatchConfigs()
+
+	// 单个配置监听
+	//e := &settingWatch{etcd: utils.GetEtcd(), key: "/setting/config/server"}
+	//go ListenWatch(e)
+
+	respServer := utils.GetEtcd().Get("/setting/config/server")
 	serverMap := server{}
 	json.Unmarshal([]byte(respServer["/setting/config/server"].(string)), &serverMap)
 	fmt.Println("serverJson:====================\n", serverMap)
 
-	resDb := utils.EtcdObject.Get("/setting/config/db")
+	resDb := utils.GetEtcd().Get("/setting/config/db")
 	databaseMap := database{}
 	json.Unmarshal([]byte(resDb["/setting/config/db"].(string)), &databaseMap)
 	fmt.Println("databaseJson:====================\n", databaseMap)
 
-	resRedis := utils.EtcdObject.Get("/setting/config/redis")
+	resRedis := utils.GetEtcd().Get("/setting/config/redis")
 	redisMap := redis{}
 	json.Unmarshal([]byte(resRedis["/setting/config/redis"].(string)), &redisMap)
 	fmt.Println("redisJson:====================\n", redisMap)
 
-	resElastic := utils.EtcdObject.Get("/setting/config/elastic")
+	resElastic := utils.GetEtcd().Get("/setting/config/elastic")
 	elasticMap := elastic{}
 	json.Unmarshal([]byte(resElastic["/setting/config/elastic"].(string)), &elasticMap)
 	fmt.Println("elasticJson:====================\n", elasticMap)
 
-	resWhiteIpList := utils.EtcdObject.Get("/setting/config/whiteIpList")
+	resWhiteIpList := utils.GetEtcd().Get("/setting/config/whiteIpList")
 	ipMap := whiteList{}
 	json.Unmarshal([]byte(resWhiteIpList["/setting/config/whiteIpList"].(string)), &ipMap)
 	fmt.Println("whileIpJson:====================\n", ipMap)
@@ -101,4 +115,91 @@ func getConf() {
 	Redis = &redisMap
 	Elastic = &elasticMap
 	WhiteList = &ipMap
+}
+
+type etcdWatch interface {
+	listenWatchConfig()
+}
+
+func ListenWatch(s etcdWatch) {
+	s.listenWatchConfig()
+}
+
+type settingWatch struct {
+	etcd *utils.EtcdContext
+	key  string
+}
+
+func (w *settingWatch) listenWatchConfig() {
+	cli, err := clientv3.New(w.etcd.Config)
+	if err != nil {
+		logger.Error("connect to etcd failed, err:%v", err)
+		return
+	}
+	defer cli.Close()
+
+	// watch 监听
+	rch := cli.Watch(w.etcd.Ctx, w.key) // <-chan WatchResponse
+	for wresp := range rch {
+		for _, ev := range wresp.Events {
+			if string(ev.Kv.Key) == w.key {
+				serverMap := server{}
+				json.Unmarshal([]byte(string(ev.Kv.Value)), &serverMap)
+				Server = &serverMap
+				logger.Info("WatchServer:%v", serverMap)
+			}
+		}
+	}
+}
+
+// 监控所有配置
+func (w *settingWatch) listenWatchConfigs() {
+	cli, err := clientv3.New(w.etcd.Config)
+	if err != nil {
+		logger.Error("connect to etcd failed, err:%v", err)
+		return
+	}
+	defer cli.Close()
+
+	// watch 监听
+	rch := cli.Watch(w.etcd.Ctx, w.key, clientv3.WithPrefix()) // <-chan WatchResponse
+	for wresp := range rch {
+		for _, ev := range wresp.Events {
+			switch ev.Type {
+			case mvccpb.Event_EventType(storagepb.PUT):
+				if string(ev.Kv.Key) == "/setting/config/server" {
+					serverMap := server{}
+					json.Unmarshal([]byte(string(ev.Kv.Value)), &serverMap)
+					Server = &serverMap
+					logger.Info("WatchServerConfig:%v", serverMap)
+				}
+				if string(ev.Kv.Key) == "/setting/config/db" {
+					dbMap := database{}
+					json.Unmarshal([]byte(string(ev.Kv.Value)), &dbMap)
+					Database = &dbMap
+					logger.Info("WatchDatabaseConfig:%v", dbMap)
+				}
+				if string(ev.Kv.Key) == "/setting/config/redis" {
+					redisMap := redis{}
+					json.Unmarshal([]byte(string(ev.Kv.Value)), &redisMap)
+					Redis = &redisMap
+					logger.Info("WatchRedisConfig:%v", redisMap)
+				}
+				if string(ev.Kv.Key) == "/setting/config/elastic" {
+					elasticMap := elastic{}
+					json.Unmarshal([]byte(string(ev.Kv.Value)), &elasticMap)
+					Elastic = &elasticMap
+					logger.Info("WatchElasticConfig:%v", elasticMap)
+				}
+				if string(ev.Kv.Key) == "/setting/config/whiteIpList" {
+					whiteIpListMap := whiteList{}
+					json.Unmarshal([]byte(string(ev.Kv.Value)), &whiteIpListMap)
+					WhiteList = &whiteIpListMap
+					logger.Info("WatchWhiteIpListConfig:%v", whiteIpListMap)
+				}
+			case mvccpb.Event_EventType(storagepb.DELETE):
+				logger.Info("删除:", "Revision: %v", ev.Kv.ModRevision)
+			}
+		}
+	}
 }

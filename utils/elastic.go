@@ -11,7 +11,7 @@ import (
 
 //var ESURL = "http://elastic:password@127.0.0.1:9200/"
 
-var EsClient *elastic.Client
+var esClient *elastic.Client
 
 type ElasticORM struct {
 	client *elastic.Client
@@ -32,7 +32,7 @@ func NewElasticORM() *ElasticORM {
 
 // GetES 获取ES对象
 func GetES() *elastic.Client {
-	return EsClient
+	return esClient
 }
 
 // InitES 初始化es驱动
@@ -58,7 +58,7 @@ func InitES() {
 		log.Println("connect es success.")
 	}
 	fmt.Printf("Es return with code %d and version %s \n", statusCode, info.Version.Number)
-	EsClient = client
+	esClient = client
 
 	//esversionCode, err := EsClient.ElasticsearchVersion(ESURL)
 	//if err != nil {

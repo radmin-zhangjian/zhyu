@@ -2,7 +2,8 @@ package utils
 
 import (
 	"context"
-	"github.com/coreos/etcd/clientv3"
+	//"github.com/coreos/etcd/clientv3"
+	"go.etcd.io/etcd/client/v3"
 	"strconv"
 	"sync"
 	"time"
@@ -16,18 +17,18 @@ import (
 // nohup ./etcd --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379 --listen-peer-urls http://0.0.0.0:2380 &
 // 查看版本 etcd --version
 
-var EtcdObject *EtcdClint
+var etcdObject *EtcdContext
 var Once sync.Once
 
-// EtcdClint 结构体
-type EtcdClint struct {
+// EtcdContext 结构体
+type EtcdContext struct {
 	Config clientv3.Config
 	Ctx    context.Context
 }
 
 // 初始化
 func init() {
-	//NewEtcd()
+
 }
 
 // etcd配置信息
@@ -40,15 +41,20 @@ func confEtcd() (cf clientv3.Config) {
 }
 
 // NewEtcd 构造对象
-func NewEtcd() *EtcdClint {
+func NewEtcd() *EtcdContext {
 	Once.Do(func() {
-		EtcdObject = &EtcdClint{Config: confEtcd(), Ctx: context.Background()}
+		etcdObject = &EtcdContext{Config: confEtcd(), Ctx: context.Background()}
 	})
-	return EtcdObject
+	return etcdObject
+}
+
+// GetEtcd 获取etcd对象
+func GetEtcd() *EtcdContext {
+	return etcdObject
 }
 
 // ListenReduceRank 监听降级服务
-func (e *EtcdClint) ListenReduceRank() {
+func (e *EtcdContext) ListenReduceRank() {
 	cli, err := clientv3.New(e.Config)
 	if err != nil {
 		logger.Error("connect to etcd failed, err:%v", err)
@@ -71,7 +77,7 @@ func (e *EtcdClint) ListenReduceRank() {
 }
 
 // Put 插入
-func (e *EtcdClint) Put(key string, val string) {
+func (e *EtcdContext) Put(key string, val string) {
 	//建立连接
 	cli, err := clientv3.New(e.Config)
 	if err != nil {
@@ -93,7 +99,7 @@ func (e *EtcdClint) Put(key string, val string) {
 }
 
 // Get 取出
-func (e *EtcdClint) Get(key string) (val map[string]any) {
+func (e *EtcdContext) Get(key string) (val map[string]any) {
 	//建立连接
 	cli, err := clientv3.New(e.Config)
 	if err != nil {
