@@ -15,6 +15,7 @@ import (
 	"zhyu/utils"
 	"zhyu/utils/logger"
 	//_ "zhyu/setting/toml"
+	//_ "zhyu/setting/etcd"
 )
 
 type Http struct {
@@ -77,6 +78,10 @@ func (s *Http) GinNew() *gin.Engine {
 	utils.InitRedis()
 	// gorm 初始化
 	utils.InitDB()
+	// es 初始化
+	utils.InitES()
+	// 开启etcd 并 监听降级服务开关
+	go utils.NewEtcd().ListenReduceRank()
 
 	//routes.Run(":9090") // listen and serve on 0.0.0.0:8080
 	return router

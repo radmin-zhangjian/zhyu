@@ -54,6 +54,16 @@ func (c *App) EsTest() {
 	c.JSON(http.StatusOK, result)
 }
 
+// EtcdTest etcd测试
+func (c *App) EtcdTest() {
+	// 插入
+	v1.EtcdPutService(c.Context)
+	// 取出
+	result := v1.EtcdGetService(c.Context)
+
+	c.JSON(http.StatusOK, result)
+}
+
 // SayIn 动态载入的api接口
 // http://localhost:9090/api/v1/sayIn
 func (c *App) SayIn() {

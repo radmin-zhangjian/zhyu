@@ -20,7 +20,7 @@ type ElasticORM struct {
 }
 
 func init() {
-	initES()
+	//InitES()
 }
 
 func NewElasticORM() *ElasticORM {
@@ -35,8 +35,8 @@ func GetES() *elastic.Client {
 	return EsClient
 }
 
-// 初始化es驱动
-func initES() {
+// InitES 初始化es驱动
+func InitES() {
 
 	sniffOpt := elastic.SetSniff(false)                                             // 非集群下，关闭嗅探机制
 	urlOpt := elastic.SetURL(setting.Elastic.Host)                                  // URL自行设置，比如 http://<user>:<passwd>@ip:9200
