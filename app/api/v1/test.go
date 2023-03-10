@@ -62,6 +62,10 @@ func (c *App) EtcdTest() {
 	result := v1.EtcdGetService(c.Context)
 	// 分布式锁
 	v1.EtcdLockService(c.Context)
+	// 事务
+	v1.EtcdTransactionService(c.Context)
+	// 事务锁
+	v1.EtcdLockTransactionService(c.Context)
 
 	c.JSON(http.StatusOK, result)
 }

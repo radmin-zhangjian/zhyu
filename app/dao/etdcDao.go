@@ -10,8 +10,27 @@ import (
 	"zhyu/utils/logger"
 )
 
+// NewEtcdConnect 获取etcd连接
+func NewEtcdConnect() (txn *clientv3.Client, cancel func()) {
+	e := utils.GetEtcd()
+	cli, err := clientv3.New(e.Config)
+	if err != nil {
+		logger.Error("connect to etcd failed, err:%v", err)
+		return
+	}
+
+	// 关闭连接
+	cancel = func() {
+		cli.Close()
+		fmt.Println("======== etcd connect close ========")
+	}
+
+	return cli, cancel
+}
+
 // Put 插入
-func Put(key string, val string) {
+// opts 租约时间设置
+func Put(key string, val string, opts ...int64) {
 	e := utils.GetEtcd()
 	//建立连接
 	cli, err := clientv3.New(e.Config)
@@ -21,17 +40,52 @@ func Put(key string, val string) {
 	}
 	defer cli.Close()
 
+	// 输出修改前的值
+	optsV3 := []clientv3.OpOption{
+		clientv3.WithPrevKV(),
+	}
+
+	var leaseId clientv3.LeaseID
+	for opt := range opts {
+		// 创建租约
+		leaseGrantResp, err := cli.Grant(context.TODO(), int64(opt))
+		if err != nil {
+			logger.Warn("crant create err:%v", err)
+		}
+		leaseId = leaseGrantResp.ID
+		// 设置租约
+		optsV3 = append(optsV3, clientv3.WithLease(leaseId))
+	}
+
 	//写etcd中的键值对
 	kv := clientv3.NewKV(cli)
-	//putResp, err = kv.Put(context.Background(), "/setting/config", "ok", clientv3.WithPrevKV())
-	putResp, err := kv.Put(e.Ctx, key, val)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	putResp, err := kv.Put(ctx, key, val, optsV3...)
+	cancel()
 	if err != nil {
 		logger.Warn("connect to etcd failed, err:%v", err)
 	} else {
-		logger.Info("putResp.Header.Revision:%d", putResp.Header.Revision)
-		//fmt.Println(putResp.Header.Revision) //输出Revision
-		//fmt.Println(putResp.PrevKv.Value)    //输出修改前的值
+		logger.Info("putResp.Header.Revision:%d", putResp.Header.Revision) //输出Revision
+		//logger.Info("putResp.PrevKv.Value:%v", string(putResp.PrevKv.Value)) //输出修改前的值
 	}
+
+	// op方式操作
+	//ops := []clientv3.Op{
+	//	clientv3.OpPut("aaa", "123"),
+	//	clientv3.OpGet("aaa"),
+	//}
+	//for _, op := range ops {
+	//	resp, err := cli.Do(context.TODO(), op)
+	//	if  err != nil {
+	//		log.Fatal(err)
+	//	}
+	//	if op.IsPut() {
+	//		fmt.Println(resp.Put())
+	//	}
+	//	if op.IsGet()  {
+	//		fmt.Println(resp.Get())
+	//	}
+	//}
 }
 
 // Get 取出
@@ -45,23 +99,11 @@ func Get(key string) (val map[string]any) {
 	}
 	defer cli.Close()
 
-	//context超时控制
-	//ctx, cancel := context.WithTimeout(e.Ctx, 1*time.Second)
-	//resp, err := cli.Get(ctx, key)
-	//cancel()
-	//if err != nil {
-	//	logger.Error("connect to etcd failed, err:%v", err)
-	//}
-	////遍历键值对
-	//val = make(map[string]any)
-	//for _, ev := range resp.Kvs {
-	//	//fmt.Printf("%s:%s\n", ev.Key, ev.Value)
-	//	val[string(ev.Key)] = string(ev.Value)
-	//}
-
 	//读取etcd的键值
 	kv := clientv3.NewKV(cli)
-	getResp, err := kv.Get(e.Ctx, key)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	getResp, err := kv.Get(ctx, key)
+	cancel()
 	if err != nil {
 		logger.Warn("connect to etcd failed, err:%v", err)
 	}
@@ -71,6 +113,7 @@ func Get(key string) (val map[string]any) {
 		//fmt.Printf("%s:%s\n", ev.Key, ev.Value)
 		val[string(ev.Key)] = string(ev.Value)
 	}
+
 	return
 }
 
@@ -90,7 +133,8 @@ func EtcdLock(lockKey string) (m *concurrency.Mutex, cancel func()) {
 	//fmt.Println("lockKey:", lockKey)
 
 	// 获取锁对象
-	session, err := concurrency.NewSession(cli)
+	//session, err := concurrency.NewSession(cli, concurrency.WithTTL(20))  // 自定义过期时间
+	session, err := concurrency.NewSession(cli) // 默认过期时间60秒
 	if err != nil {
 		cli.Close()
 		logger.Error("concurrency to session, err:%v", err)
@@ -106,8 +150,8 @@ func EtcdLock(lockKey string) (m *concurrency.Mutex, cancel func()) {
 	return m, cancel
 }
 
-// EtcdTransaction 事务
-func EtcdTransaction() {
+// EtcdLease 租约&续租
+func EtcdLease() {
 	e := utils.GetEtcd()
 	client, err := clientv3.New(e.Config)
 	if err != nil {
@@ -119,7 +163,7 @@ func EtcdTransaction() {
 	//1. 上锁，创建租约
 	lease := clientv3.NewLease(client)
 
-	//申请一个5秒的租约
+	//申请一个20秒的租约
 	leaseGrantResp, err := lease.Grant(e.Ctx, 20)
 	if err != nil {
 		fmt.Println(err)
@@ -127,7 +171,7 @@ func EtcdTransaction() {
 	}
 
 	//拿到租约ID
-	leaseId := clientv3.LeaseID(leaseGrantResp.ID)
+	leaseId := leaseGrantResp.ID
 
 	//取消续租
 	ctx, cancel := context.WithCancel(e.Ctx)
@@ -159,34 +203,5 @@ func EtcdTransaction() {
 		}
 	END:
 	}()
-
-	//if不存在key，then设置它，else抢锁失败
-	kv := clientv3.NewKV(client)
-
-	//创建事务
-	txn := kv.Txn(e.Ctx)
-
-	//定义事务
-	txn.If(clientv3.Compare(clientv3.CreateRevision("/cron/lock/1"), "=", 0)).
-		Then(clientv3.OpPut("/cron/lock/1", "", clientv3.WithLease(leaseId))).
-		Else(clientv3.OpGet("/cron/lock/1")) //否则抢锁失败
-
-	//提交事务
-	txnResp, err := txn.Commit()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	//判断是否抢到锁
-	if !txnResp.Succeeded {
-		fmt.Println("锁被占用:", string(txnResp.Responses[0].GetResponseRange().Kvs[0].Value))
-	}
-
-	//2.处理事务
-	fmt.Println("处理事务")
-	time.Sleep(5 * time.Second)
-
-	//defer释放锁
 
 }
