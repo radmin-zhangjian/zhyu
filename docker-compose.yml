@@ -21,28 +21,27 @@
 #方式二 这里是直接使用image启动服务 打包的文件
 # 使用下面的方式打包项目
 # TODO. CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -a -o app_zhyu .
-version: '3.7'
-
-services:
-  app:
-    image: golang:1.18-alpine3.16
-#    image: zhyu_web_app:latest
-    network_mode: bridge
-    ports:
-      - "9090:9090"
-    volumes:
-#      - $PWD:/app/site
-      - ./app_zhyu:/app/app_zhyu
-#      - ./setting/configFile:/Users/zhangjian/web/go/zhyu/setting/configFile
-    stdin_open: true
-    tty: true
-    privileged: true
-    command:
-      - sh
-      - -c
-      - |
-        cd /app
-        ./app_zhyu
+#version: '3.7'
+#
+#services:
+#  app:
+#    image: golang:1.18-alpine3.16
+##    image: zhyu_web_app:latest
+#    network_mode: bridge
+#    ports:
+#      - "9090:9090"
+#    volumes:
+##      - $PWD:/app/site
+#      - ./app_zhyu:/app/app_zhyu
+#    stdin_open: true
+#    tty: true
+#    privileged: true
+#    command:
+#      - sh
+#      - -c
+#      - |
+#        cd /app
+#        ./app_zhyu
 
 
 #方式三 结合dockerfile一起使用
@@ -66,28 +65,28 @@ services:
 
 
 #方式四  可以做测试环境自动run
-#version: '3.7'
-#
-#services:
-#  appsite:
-#    image: golang:1.18-alpine3.16
-#    network_mode: bridge
-#    ports:
-#      - "9090:9090"
-#    volumes:
-#            - $PWD:/app/site
-#    stdin_open: true
-#    tty: true
-#    privileged: true
-#    command:
-#      - sh
-#      - -c
-#      - |
-#        go env -w GOPROXY=https://goproxy.cn,direct
-#        cd /app/site
-#        go mod download
-#        go run /app/site/main.go
-##        eval `ssh-agent -s`
-##        ssh-add /app/site/id_ed25519
-##        go get -t -v github.com/golang/freetype
-##        go get -t -v gitcode.net/diandianxiyu/goimgtype
+version: '3.7'
+
+services:
+  appsite:
+    image: golang:1.18-alpine3.16
+    network_mode: bridge
+    ports:
+      - "9090:9090"
+    volumes:
+            - $PWD:/app/site
+    stdin_open: true
+    tty: true
+    privileged: true
+    command:
+      - sh
+      - -c
+      - |
+        go env -w GOPROXY=https://goproxy.cn,direct
+        cd /app/site
+        go mod download
+        go run /app/site/main.go
+#        eval `ssh-agent -s`
+#        ssh-add /app/site/id_ed25519
+#        go get -t -v github.com/golang/freetype
+#        go get -t -v gitcode.net/diandianxiyu/goimgtype

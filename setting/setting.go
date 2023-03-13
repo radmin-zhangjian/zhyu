@@ -21,6 +21,10 @@ func init() {
 	InitConf(*configFile)
 }
 
+// InitConf
+// https://github.com/go-bindata/go-bindata
+// go-bindata -o setting/bindata.go -pkg setting setting/configFile/...
+// CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags '-w -s' -a -o app_zhyu .
 func InitConf(dataFile string) {
 	// 打包配置文件
 	var err error

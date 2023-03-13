@@ -6,6 +6,7 @@ import (
 
 // 带上环境变量打包
 // CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -a -o app_zhyu .
+// CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -ldflags '-w -s' -a -o app_zhyu .
 
 func main() {
 	http := servers.NewHttp()
