@@ -1,0 +1,93 @@
+#方式一 结合dockerfile一起使用
+#version: '3.7'
+#
+#services:
+#  web_app:
+#    build:
+#      context: ./                   # 指定构建使用的目录
+#      dockerfile: Dockerfile        # 指定构建使用的 Dockerfile 文件
+#    environment:                    # 设置环境变量
+#      - TZ=Asia/Shanghai
+#    privileged: true
+#    ports:                          # 设置端口映射
+#      - "9090:9090"
+#    stdin_open: true                # 打开标准输入，可以接受外部输入
+#    tty: true
+##    networks:
+##      - backend
+#    restart: always                 # 指定容器退出后的重启策略为始终重启
+
+
+#方式二 这里是直接使用image启动服务 打包的文件
+# 使用下面的方式打包项目
+# TODO. CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -a -o app_zhyu .
+version: '3.7'
+
+services:
+  app:
+    image: golang:1.18-alpine3.16
+#    image: zhyu_web_app:latest
+    network_mode: bridge
+    ports:
+      - "9090:9090"
+    volumes:
+#      - $PWD:/app/site
+      - ./app_zhyu:/app/app_zhyu
+#      - ./setting/configFile:/Users/zhangjian/web/go/zhyu/setting/configFile
+    stdin_open: true
+    tty: true
+    privileged: true
+    command:
+      - sh
+      - -c
+      - |
+        cd /app
+        ./app_zhyu
+
+
+#方式三 结合dockerfile一起使用
+#version: '3.7'
+#
+#services:
+#  zhyu_app:
+#    build:
+#      context: ./                   # 指定构建使用的目录
+#      dockerfile: Dockerfile_app    # 指定构建使用的 Dockerfile 文件
+#    environment:                    # 设置环境变量
+#      - TZ=Asia/Shanghai
+#    privileged: true
+#    ports:                          # 设置端口映射
+#      - "9090:9090"
+#    stdin_open: true                # 打开标准输入，可以接受外部输入
+#    tty: true
+##    networks:
+##      - backend
+#    restart: always                 # 指定容器退出后的重启策略为始终重启
+
+
+#方式四  可以做测试环境自动run
+#version: '3.7'
+#
+#services:
+#  appsite:
+#    image: golang:1.18-alpine3.16
+#    network_mode: bridge
+#    ports:
+#      - "9090:9090"
+#    volumes:
+#            - $PWD:/app/site
+#    stdin_open: true
+#    tty: true
+#    privileged: true
+#    command:
+#      - sh
+#      - -c
+#      - |
+#        go env -w GOPROXY=https://goproxy.cn,direct
+#        cd /app/site
+#        go mod download
+#        go run /app/site/main.go
+##        eval `ssh-agent -s`
+##        ssh-add /app/site/id_ed25519
+##        go get -t -v github.com/golang/freetype
+##        go get -t -v gitcode.net/diandianxiyu/goimgtype

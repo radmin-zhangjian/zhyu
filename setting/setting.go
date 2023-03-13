@@ -4,17 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"log"
-	"os"
-	"path"
-	"runtime"
 )
 
 var (
 	// 测试环境默认 configFile/app.yaml 为配置文件
 	// 更改配置文件 go main.go -config.file=xxx.yaml
-	configFile = flag.String("config.file", "configFile/app.yaml", "config file")
+	configFile = flag.String("config.file", "setting/configFile/app.yaml", "config file")
 )
 
 func init() {
@@ -26,16 +22,27 @@ func init() {
 }
 
 func InitConf(dataFile string) {
-	_, filename, _, _ := runtime.Caller(0)
-	filePath := path.Join(path.Dir(filename), dataFile)
-	_, err := os.Stat(filePath)
+	// 打包配置文件
+	var err error
+	yamlFile, err := Asset(dataFile)
 	if err != nil {
-		log.Printf("common file path %s not exist", filePath)
+		log.Fatalf("Fail to Asset parse 'setting/configFile/app.yaml': %v", err)
 	}
-	yamlFile, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
-	}
+	log.Printf("asset: %T %v\n", yamlFile, string(yamlFile))
+
+	// yml 正常解析
+	//_, filename, _, _ := runtime.Caller(0)
+	//filePath := path.Join(path.Dir(filename), dataFile)
+	//_, err := os.Stat(filePath)
+	//if err != nil {
+	//	log.Printf("common file path %s not exist", filePath)
+	//}
+	//yamlFile, err := ioutil.ReadFile(filePath)
+	//if err != nil {
+	//	log.Printf("yamlFile.Get err   #%v ", err)
+	//}
+
+	// 解析成 struct
 	c := &conf{}
 	err = yaml.Unmarshal(yamlFile, &c)
 	if err != nil {

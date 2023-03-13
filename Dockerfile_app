@@ -1,0 +1,7 @@
+FROM scratch
+
+WORKDIR /app
+COPY app_zhyu /app/
+COPY ./setting/configFile /Users/zhangjian/web/go/zhyu/setting/configFile
+
+ENTRYPOINT ["./app_zhyu", "-config.file", "configFile/app.yaml"]
