@@ -70,6 +70,12 @@ func (c *App) EtcdTest() {
 	c.JSON(http.StatusOK, result)
 }
 
+// HystrixTest 熔断测试
+func (c *App) HystrixTest() {
+	result := v1.HystrixService(c.Context)
+	c.JSON(http.StatusOK, result)
+}
+
 // SayIn 动态载入的api接口
 // http://localhost:9090/api/v1/sayIn
 func (c *App) SayIn() {

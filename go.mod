@@ -28,6 +28,7 @@ require (
 )
 
 require (
+	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/coreos/etcd v2.3.8+incompatible // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect

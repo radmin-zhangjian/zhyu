@@ -41,6 +41,7 @@
 #      - -c
 #      - |
 #        cd /app
+#        chmod +x app_zhyu
 #        ./app_zhyu
 
 
