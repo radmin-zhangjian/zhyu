@@ -151,6 +151,7 @@ func Logger() gin.HandlerFunc {
 			build.WriteString(responseBody)
 			build.WriteString("[msg]")
 			build.WriteString(c.Errors.ByType(gin.ErrorTypePrivate).String())
+			build.WriteString("\n")
 			logMsg := build.String()
 
 			logs := c.MustGet("logs").(logger.Logger)
