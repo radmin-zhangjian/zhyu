@@ -5,7 +5,7 @@ var (
 	ERROR   = 1002
 	FATAL   = 1004
 
-	LOGOOUT                        = 1011
+	LOGOUT                         = 1011
 	ERROR_AUTH                     = 1020
 	INVALID_PARAMS                 = 1021
 	INVALID_RESULT                 = 1022
@@ -18,7 +18,7 @@ var (
 		SUCCESS:                        "success",
 		ERROR:                          "error",
 		FATAL:                          "fatal",
-		LOGOOUT:                        "退出登陆",
+		LOGOUT:                         "退出登陆",
 		ERROR_AUTH:                     "验证失败",
 		INVALID_PARAMS:                 "无效的参数",
 		INVALID_RESULT:                 "数据为空或nil",

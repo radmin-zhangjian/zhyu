@@ -11,6 +11,7 @@ import (
 	"strings"
 	app "zhyu/app"
 	"zhyu/app/api"
+	"zhyu/middleware"
 	"zhyu/utils/logger"
 )
 
@@ -77,7 +78,7 @@ func InitRoutes(version string, controller string, c *gin.Context) interface{} {
 // 例如：http://localhost:9090/api/v2/sayOut?a=abc
 func NewAny(router *gin.Engine) {
 	anyRouter := router.Group("/api")
-	//anyRouter.Use(middleware.JwtAuth())
+	anyRouter.Use(middleware.JwtAuth())
 	{
 		anyRouter.Any("/*action", func(c *gin.Context) {
 			if strings.HasPrefix(c.Request.URL.Path, "/public/") {

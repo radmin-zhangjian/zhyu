@@ -6,7 +6,7 @@ server:
   logPath: runtime/logs # path 日志文件路径
   readTimeout: 30 # 读超时 秒
   writeTimeout: 30 # 写超时 秒
-  shutdownTime: 1 # 优雅停止程序 秒
+  shutdownTime: 5 # 优雅停止程序 秒
   workerID: 1 # 雪花算法分布式的当前 workerID
   jwtSecret: c58c3baeb4483b9255013bec45678bd6 # JWT 密钥  zhyu-go-1659263420
 
@@ -40,9 +40,10 @@ redis:
 elastic:
   host: http://127.0.0.1:9200/
   user: elastic
-  password: password
+  password:
 
 whiteList:
   ip:
     - ::1
     - 127.0.0.1
+    - 192.168.0.3

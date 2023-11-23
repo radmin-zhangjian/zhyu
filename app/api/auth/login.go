@@ -13,3 +13,12 @@ func (c *App) Login() {
 	data := auth.LoginAuthService(c.Ctx, c.Context)
 	c.JSON(http.StatusOK, data)
 }
+
+// Register 用户注册
+func (c *App) Register() {
+	// valid
+
+	// register
+	data := auth.RegisterAuthService(c.Ctx, c.Context)
+	c.JSON(http.StatusOK, data)
+}

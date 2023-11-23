@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"time"
 	"zhyu/app/common"
@@ -14,6 +15,10 @@ func JwtAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 不需要验证的路由
 		// todo
+		if _, ok := common.RouteAuth[c.Request.URL.Path]; ok {
+			c.Next()
+			return
+		}
 
 		// 开始验证token
 		var code int
@@ -21,18 +26,23 @@ func JwtAuth() gin.HandlerFunc {
 		var userId int64
 
 		code = common.SUCCESS
-		token := c.Query("token")
+		token := c.PostForm("token")
+		if token == "" {
+			token = c.Query("token")
+		}
 		if token == "" {
 			code = common.ERROR_AUTH_NO_TOKRN
 		} else {
 			claims, err := utils.ParseToken(token)
-			//log.Printf("claims: %#v", claims)
-			if err != nil {
+			log.Printf("claims: %#v", claims)
+			if err == nil {
+				userId = claims.UserId
+			} else {
 				code = common.ERROR_AUTH_CHECK_TOKEN_FAIL
-			} else if time.Now().Unix() > claims.ExpiresAt {
-				code = common.ERROR_AUTH_CHECK_TOKEN_TIMEOUT
+				if claims != nil && time.Now().Unix() > claims.ExpiresAt {
+					code = common.ERROR_AUTH_CHECK_TOKEN_TIMEOUT
+				}
 			}
-			userId = claims.UserId
 		}
 
 		// 如果token验证不通过，直接终止程序，c.Abort()
