@@ -11,13 +11,14 @@ import (
 )
 
 type userData struct {
-	Id      int64
-	Name    string
-	Age     uint8
-	Address string
-	Phone   string
-	Photo   string
-	Status  uint8
+	Id        int64  `json:"id"`
+	Name      string `json:"name"`
+	Age       uint8  `json:"age"`
+	Address   string `json:"address"`
+	Phone     string `json:"phone"`
+	Photo     string `json:"photo"`
+	Status    uint8  `json:"status"`
+	CreatedAt int64  `json:"created"`
 }
 
 // UserListService 获取用户列表
@@ -72,6 +73,7 @@ func UserListService(ctx context.Context, c *app.Context) any {
 		resultList[key].Phone = item.Phone
 		resultList[key].Photo = item.Photo
 		resultList[key].Status = item.Status
+		resultList[key].CreatedAt = item.CreatedAt
 	}
 	resultData["list"] = resultList
 	resultData["page"] = service.PagesService(page, pageSize, total)

@@ -213,7 +213,7 @@ func QueryExecDao(sql string, values ...interface{}) (user *[]model.User) {
 func UserGetList(limit int, offset int, where string, args ...any) (user *[]model.User, total int64) {
 	db := utils.GetDB()
 	db.Model(&user).
-		Select("id", "user_name", "phone", "name", "age", "address", "photo", "status").
+		Select("id", "user_name", "phone", "name", "age", "address", "photo", "status", "created_at").
 		Where(where, args...).
 		Limit(limit).
 		Offset(offset).
@@ -221,7 +221,7 @@ func UserGetList(limit int, offset int, where string, args ...any) (user *[]mode
 		Find(&user)
 
 	db.Model(&user).
-		Select("id", "user_name", "phone", "name", "age", "address", "photo", "status").
+		Select("id").
 		Where(where, args...).
 		Order("id desc").
 		Count(&total)

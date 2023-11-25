@@ -6,11 +6,11 @@ import (
 )
 
 type pagesModel struct {
-	Page      int
-	PageSize  int
-	PageCount int64
-	PageTotal int
-	PageNext  int
+	Page      int   `json:"page"`
+	PageSize  int   `json:"pageSize"`
+	PageCount int64 `json:"pageCount"`
+	PageTotal int   `json:"pageTotal"`
+	PageNext  int   `json:"pageNext"`
 }
 
 // PagesService 美化分页
