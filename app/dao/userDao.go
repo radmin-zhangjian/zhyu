@@ -223,7 +223,6 @@ func UserGetList(limit int, offset int, where string, args ...any) (user *[]mode
 	db.Model(&user).
 		Select("id").
 		Where(where, args...).
-		Order("id desc").
 		Count(&total)
 	return
 }
