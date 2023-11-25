@@ -207,3 +207,23 @@ func QueryExecDao(sql string, values ...interface{}) (user *[]model.User) {
 
 	return
 }
+
+// UserGetList 分页查询，可以使用Limit & Offset进行分页查询
+// SELECT * FROM users OFFSET 5 LIMIT 10;
+func UserGetList(limit int, offset int, where string, args ...any) (user *[]model.User, total int64) {
+	db := utils.GetDB()
+	db.Model(&user).
+		Select("id", "user_name", "phone", "name", "age", "address", "photo", "status").
+		Where(where, args...).
+		Limit(limit).
+		Offset(offset).
+		Order("id desc").
+		Find(&user)
+
+	db.Model(&user).
+		Select("id", "user_name", "phone", "name", "age", "address", "photo", "status").
+		Where(where, args...).
+		Order("id desc").
+		Count(&total)
+	return
+}
