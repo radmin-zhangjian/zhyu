@@ -4,8 +4,6 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/petermattis/goid"
-	"log"
-	"sync"
 	"zhyu/app/common"
 	"zhyu/utils"
 	"zhyu/utils/logger"
@@ -31,10 +29,8 @@ func ContentKeys() gin.HandlerFunc {
 		goId := goid.Get()
 		c.Set("goId", goId)
 
-		var mu sync.RWMutex
-		mu.Lock()
-		common.RequestIdMap[goId] = requestId
-		mu.Unlock()
+		// 设置 uuid
+		common.RequestIdMap.Store(goId, requestId)
 
 		// 注册自定义logger
 		logs := logger.Logger{Context: c}
@@ -43,9 +39,7 @@ func ContentKeys() gin.HandlerFunc {
 		c.Next()
 
 		// 清空 RequestIdMap
-		mu.Lock()
-		delete(common.RequestIdMap, goId)
-		mu.Unlock()
-		log.Printf("common.RequestIdMap: %#v", common.RequestIdMap)
+		common.RequestIdMap.Delete("goId")
+		//log.Printf("common.RequestIdMap: %#v", common.RequestIdMap)
 	}
 }

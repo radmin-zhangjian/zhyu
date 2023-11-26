@@ -9,7 +9,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 	"zhyu/app/common"
 	"zhyu/setting"
@@ -74,10 +73,8 @@ func LogHandlerFunc() {
 }
 
 func join(logLevel string, message interface{}) string {
-	var mu sync.RWMutex
-	mu.RLock()
-	RequestGoId := common.RequestIdMap[goid.Get()]
-	mu.RUnlock()
+	// 获取uuid
+	RequestGoId, _ := common.RequestIdMap.Load(goid.Get())
 	startTimeStr := time.Now().Format("2006-01-02 15:04:05")
 	logMsg := fmt.Sprintf("[%s][%s][%s][traceId:%v][respose]%s\n",
 		setting.Server.ServerName,

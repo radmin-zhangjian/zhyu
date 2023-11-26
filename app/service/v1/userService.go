@@ -13,6 +13,7 @@ import (
 type userData struct {
 	Id        int64  `json:"id"`
 	Name      string `json:"name"`
+	UserName  string `json:"username"`
 	Age       uint8  `json:"age"`
 	Address   string `json:"address"`
 	Phone     string `json:"phone"`
@@ -43,9 +44,11 @@ func UserListService(ctx context.Context, c *app.Context) any {
 	}
 
 	// 查询列表
-	where := "status = ? and password = ?"
+	// where := "status = ? and age > ?"
+	// args := []any{"1", "20"}
+	where := "status = ?"
 	args := []any{
-		"1", "123456",
+		"1",
 	}
 	offset := (page - 1) * pageSize
 	limit := pageSize
@@ -68,6 +71,7 @@ func UserListService(ctx context.Context, c *app.Context) any {
 
 		resultList[key].Id = item.Id
 		resultList[key].Name = item.Name
+		resultList[key].UserName = item.Username
 		resultList[key].Age = item.Age
 		resultList[key].Address = item.Address
 		resultList[key].Phone = item.Phone
