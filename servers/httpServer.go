@@ -49,8 +49,8 @@ func (s *Http) GinNew() *gin.Engine {
 	// 自定义Logger
 	router.Use(middleware.Logger())
 	go logger.LogHandlerFunc() // 异步处理日志
-	// ip白名单
-	router.Use(middleware.IpAuth())
+	// ip白名单 ==关闭中==
+	//router.Use(middleware.IpAuth())
 	// 定义全局的CORS中间件
 	router.Use(middleware.Cors())
 

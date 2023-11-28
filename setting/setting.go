@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"log"
+	"testing"
 )
 
 var (
@@ -14,6 +15,8 @@ var (
 )
 
 func init() {
+	// 单元测试时需要 不添加会报错
+	testing.Init()
 	// 解析参数
 	if !flag.Parsed() {
 		flag.Parse()
