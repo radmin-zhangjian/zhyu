@@ -23,7 +23,7 @@ func SortDesc(source []api.AppVersion) {
 }
 
 // InitRoutes 匹配路由
-func InitRoutes(version string, controller string, c *gin.Context) interface{} {
+func InitRoutes(version string, controller string) interface{} {
 	// 版本
 	appData := api.Version()
 	// 倒叙
@@ -52,10 +52,10 @@ func InitRoutes(version string, controller string, c *gin.Context) interface{} {
 		}
 		if ver1 >= ver2 {
 			srv := v.Object
-			rValue := reflect.ValueOf(srv)
+			//rValue := reflect.ValueOf(srv)
 			rType := reflect.TypeOf(srv)
-			reciver := rValue.Elem().FieldByName("Context")
-			reciver.Set(reflect.ValueOf(&app.Context{Context: c}))
+			//reciver := rValue.Elem().FieldByName("Context")
+			//reciver.Set(reflect.ValueOf(&app.Context{Context: c}))
 			_, exist := rType.MethodByName(controller)
 			if exist {
 				return v.Object
@@ -88,7 +88,7 @@ func NewAny(router *gin.Engine) {
 				version := strings.ToLower(path[2][:1]) + path[2][1:]
 				controllerName := strings.ToUpper(path[3][:1]) + path[3][1:]
 
-				srv := InitRoutes(version, controllerName, c)
+				srv := InitRoutes(version, controllerName)
 				if srv == nil {
 					c.String(http.StatusNotFound, "method %s not found!", c.Request.URL.Path)
 					c.Abort()
