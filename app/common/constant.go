@@ -1,9 +1,10 @@
 package common
 
 var (
-	SUCCESS = 1000
-	ERROR   = 1002
-	FATAL   = 1004
+	SUCCESS      = 1000
+	ERROR        = 1002
+	FATAL        = 1004
+	RATE_LIMITER = 1005
 
 	LOGOUT                         = 1011
 	ERROR_AUTH                     = 1020
@@ -18,6 +19,7 @@ var (
 		SUCCESS:                        "success",
 		ERROR:                          "error",
 		FATAL:                          "fatal",
+		RATE_LIMITER:                   "访问过于频繁，请稍后访问",
 		LOGOUT:                         "退出登陆",
 		ERROR_AUTH:                     "验证失败",
 		INVALID_PARAMS:                 "无效的参数",

@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"golang.org/x/crypto/bcrypt"
 	"zhyu/setting"
 	"zhyu/utils/logger"
 	"zhyu/utils/uuid"
@@ -58,4 +59,22 @@ func StructToMap(item any) map[string]interface{} {
 	}
 
 	return docData
+}
+
+// HashPassword 加密密码
+func HashPassword(password string) (string, error) {
+	// bcrypt.GenerateFromPassword 使用 bcrypt 算法生成哈希值，第二个参数是工作因子（cost）
+	// 10 是默认推荐的工作因子，数值越大，计算越耗时，安全性越高
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
+// CheckPassword 验证密码
+func CheckPassword(hashedPassword, password string) bool {
+	// bcrypt.CompareHashAndPassword 会将加密的哈希密码和未加密的密码进行比较
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	return err == nil
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"log"
+	"reflect"
 	"time"
 	"zhyu/app/common"
 	"zhyu/utils"
@@ -49,4 +50,56 @@ func GetString(key string) (any, error) {
 		return "", errors.New(err.Error())
 	}
 	return res, nil
+}
+
+// RateLimiter 限流
+func RateLimiter(keys []string, value ...any) (int, error) {
+	rdb := utils.GetRedis()
+
+	// Lua 脚本
+	luaScript := `
+		local key = KEYS[1]
+		local time = tonumber(ARGV[1])
+		local count = tonumber(ARGV[2])
+		local current = redis.call('get', key)
+		if current and tonumber(current) > count then
+		  return tonumber(current)
+		end
+		current = redis.call('incr', key)
+		if tonumber(current) == 1 then
+		  redis.call('expire', key, time)
+		end
+		return tonumber(current)
+	`
+
+	// 运行 Lua 脚本
+	result, err := rdb.Eval(ctx, luaScript, keys, value).Result()
+	if err != nil {
+		fmt.Println("Error running Lua script:", err)
+		return 0, errors.New(err.Error())
+	}
+
+	fmt.Println("Result from Lua script:", result)
+
+	var num int
+	switch reflect.TypeOf(result).Kind() {
+	case reflect.Int:
+		if i, ok := result.(int); ok {
+			num = i
+		}
+	case reflect.Int64:
+		if i, ok := result.(int64); ok {
+			num = int(i)
+		}
+	case reflect.Float64:
+		// 将 float64 转换为 int
+		if f, ok := result.(float64); ok {
+			i := int(f)
+			num = i
+		}
+	}
+
+	fmt.Println("Result from Lua num:", num)
+
+	return num, nil
 }

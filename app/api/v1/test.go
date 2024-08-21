@@ -128,3 +128,11 @@ func (c *App) SayDo() {
 	c.String(http.StatusOK, "c.v1 result: %s, resultV1: %s, UserInfo: %s", result, resultV1, c.UserInfo)
 	c.JSON(http.StatusOK, resultDB)
 }
+
+// RateLimter 限流测试接口
+// http://localhost:9090/api/v1/rateLimter
+func (c *App) RateLimter() {
+	keys := []string{"rate_limter:"}
+	result := service.RateLimiter(keys, 1, 1)
+	c.JSON(http.StatusOK, result)
+}

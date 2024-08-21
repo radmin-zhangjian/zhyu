@@ -49,7 +49,17 @@ func LoginAuthService(ctx context.Context, c *app.Context) any {
 		return common.Result(code, common.GetMsg(code), data)
 	}
 
-	// 验证用户
+	data["username"] = username
+	data["password"] = password
+	// 使用 bcrypt 密码加密
+	data["pwHash"], _ = utils.HashPassword(password)
+	// 验证密码
+	//hashedPassword := data["pwHash"]
+	hashedPassword := "$2a$10$k9ikrCc5kwubXHqkErgfQe5nv56WrG.FZS5hnie0yCz..YKNChyiu"
+	match := utils.CheckPassword(hashedPassword, password)
+	fmt.Println("Password Match:", match)
+
+	// 验证用户 密码未加密
 	user, isExist := dao.UserGetOneNamePass(username, password)
 	log.Printf("user: %#v,isExist: %#v ", user, isExist)
 	if isExist {
